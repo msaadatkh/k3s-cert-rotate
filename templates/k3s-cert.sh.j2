@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# function to log with journalctl-like format
+log_msg() {
+    local message="$1"
+    local ts
+    ts=$(date +"%b %d %H:%M:%S")
+    local host
+    host=$(hostname)
+    local pid
+    pid=$(systemctl show -p MainPID --value k3s)
+
+    local formatted="${ts} ${host} k3s[${pid}]: ${message}"
+
+    # log to file: for checking logs use "tail -f -n100 /var/log/k3s-cert.log"
+    echo "${formatted}" >> /var/log/k3s-cert.log
+
+    # log to syslog: for checking logs use "systemctl -t k3s-cert"
+    logger -t k3s-cert "${message}"
+}
+
+if journalctl -u k3s --since "{{ cert_check_window }}" | grep -qi "CertificateExpirationWarning"; then
+    log_msg "Certificate expiration warning found. Restarting k3s service..."
+    systemctl restart k3s
+
+    if systemctl is-active --quiet k3s; then
+        log_msg "k3s service restarted successfully."
+    else
+        log_msg "Failed to restart k3s service!"
+        exit 1
+    fi
+else
+    log_msg "No certificate expiration warnings found."
+fi

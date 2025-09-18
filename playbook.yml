@@ -1,0 +1,20 @@
+---
+- name: Deploy k3s-cert script
+  hosts: cluster
+  become: true
+
+  tasks:
+    - name: Copy k3s-cert script from template
+      ansible.builtin.template:
+        src: k3s-cert.sh.j2
+        dest: /usr/local/bin/k3s-cert.sh
+        mode: '0755'
+
+    - name: Ensure cron job is present to run the script
+      ansible.builtin.cron:
+        name: "Check k3s certificates"
+        user: root
+        job: "/usr/local/bin/k3s-cert.sh"
+        minute: "0"
+        hour: "0"
+        day: "1"

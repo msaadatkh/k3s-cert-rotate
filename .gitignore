@@ -1,0 +1,31 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# pyenv
+.python-version
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+
+# other
+*.tar.gz
+*.tmp.*
+.DS_Store
+.cache
+.envrc
+.idea
+.pytest_cache
+.vscode/launch.json
+_readthedocs
+coverage.lcov
+.direnv
+uv.lock
+.ansible
